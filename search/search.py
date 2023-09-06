@@ -70,7 +70,11 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return  [s, s, w, s, w, w, s, w]\
+
+
+# def genericSearchAlgo (problem, dataStruct):
+    
 
 def depthFirstSearch(problem: SearchProblem):
     """
@@ -87,12 +91,53 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stack= util.Stack()
+    solution=[] #action list
+    parent={} 
+    seen=[]#visited coordinates
+    direction={}#direction to each coordinate (from root)
+    successorsDict={}
+    goalNode=0
+
+    root= problem.getStartState()
+    stack.push(root)
+    while not stack.isEmpty():
+        # print(seen)
+        node= stack.pop()
+        stack.push(node)
+        seen.append(node)
+        if problem.isGoalState(node):
+            goalNode=node
+            break
+        if node not in successorsDict: #prevent re-expanding
+            successors= problem.getSuccessors(node) #successor, action, stepCost
+            successorsDict[node]=successors
+        else:
+            successors= successorsDict[node]
+        unvisitedSuccessors=False
+        for successor in successors:
+            [location,action,cost]= successor
+            if location not in seen:
+                parent[location]=node
+                direction[location]=action  
+                stack.push(location)
+                unvisitedSuccessors=True
+                break
+        if not unvisitedSuccessors:
+            stack.pop()
+       
+    curr= goalNode
+    while curr!=root:
+        action= direction[curr]
+        solution.append(action)
+        curr= parent[curr]
+    solution.reverse()
+    return solution
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
