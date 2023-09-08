@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import searchAgents
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -139,7 +140,6 @@ def breadthFirstSearch(problem: SearchProblem):
     queue= util.Queue()
     solution=[] #action list
     seen=[]#visited coordinates
-
     root= problem.getStartState()# coordinate
     queue.push([root,[]]) #[coordinate, path]
     
@@ -214,7 +214,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     costDict={}
     root= problem.getStartState()
     costDict[root]=0 
-    queue.push([root,[]],costDict[root]+ searchAgents.manhattanHeuristic(root,problem))
+    queue.push([root,[]],costDict[root]+ heuristic(root,problem))
     
     while not queue.isEmpty():
         values= queue.pop()
@@ -234,7 +234,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
             [location,action,cost]= successor
             if location not in seen:
                 costDict[location]= costDict[node]+ cost
-                queue.update([location,path+[action]],costDict[location]+ + searchAgents.manhattanHeuristic(location,problem))
+                queue.update([location,path+[action]],costDict[location]+ heuristic(location,problem))
     return solution
 
 
