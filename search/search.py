@@ -18,7 +18,6 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
-
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -140,31 +139,25 @@ def breadthFirstSearch(problem: SearchProblem):
     queue= util.Queue()
     solution=[] #action list
     seen=[]#visited coordinates
-    successorsDict={}
 
-    root= problem.getStartState()
-    queue.push([root,[]])
+    root= problem.getStartState()# coordinate
+    queue.push([root,[]]) #[coordinate, path]
     
     while not queue.isEmpty():
-        values= queue.pop()
-        node=values[0]
-        path= values[1]
-        
-        seen.append(node)
-        if problem.isGoalState(node):
+        pair= queue.pop()
+        coordinate= pair[0]
+        path=pair[-1]
+        if problem.isGoalState(coordinate):
             solution=path
             break
-        if node not in successorsDict: #prevent re-expanding
-            successors= problem.getSuccessors(node) #successor, action, stepCost
-            successorsDict[node]=successors
-        else:
-            successors= successorsDict[node]
+        if coordinate in seen:
+            continue
+        seen.append(coordinate)
+        successors= problem.getSuccessors(coordinate)
         for successor in successors:
-            [location,action,cost]= successor
-            if location not in seen:
-                queue.push([location,path+[action]])
+            [newCoor,action,stepCost]= successor 
+            queue.push([newCoor,path + [action]])
     return solution
-
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
@@ -206,12 +199,43 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
+    print(state)
+    print(problem)
     return 0
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    queue= util.PriorityQueue()
+    solution=[] #action list
+    seen=[]#visited coordinates
+    successorsDict={}
+    costDict={}
+    root= problem.getStartState()
+    costDict[root]=0 
+    queue.push([root,[]],costDict[root]+ searchAgents.manhattanHeuristic(root,problem))
+    
+    while not queue.isEmpty():
+        values= queue.pop()
+        node=values[0]
+        path= values[1]
+        
+        seen.append(node)
+        if problem.isGoalState(node):
+            solution=path
+            break
+        if node not in successorsDict: #prevent re-expanding
+            successors= problem.getSuccessors(node) #successor, action, stepCost
+            successorsDict[node]=successors
+        else:
+            successors= successorsDict[node]
+        for successor in successors:
+            [location,action,cost]= successor
+            if location not in seen:
+                costDict[location]= costDict[node]+ cost
+                queue.update([location,path+[action]],costDict[location]+ + searchAgents.manhattanHeuristic(location,problem))
+    return solution
 
 
 # Abbreviations
