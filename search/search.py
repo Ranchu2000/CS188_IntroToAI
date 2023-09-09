@@ -199,8 +199,6 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
-    print(state)
-    print(problem)
     return 0
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
@@ -210,31 +208,27 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     queue= util.PriorityQueue()
     solution=[] #action list
     seen=[]#visited coordinates
-    successorsDict={}
-    costDict={}
     root= problem.getStartState()
-    costDict[root]=0 
-    queue.push([root,[]],costDict[root]+ heuristic(root,problem))
+    queue.push([root,[],0],heuristic(root,problem)) #[[coord],path,cost]
     
     while not queue.isEmpty():
-        values= queue.pop()
-        node=values[0]
-        path= values[1]
+        triple= queue.pop()
+        coordinate=triple[0]
+        path= triple[1]
+        cost= triple[2]
         
-        seen.append(node)
-        if problem.isGoalState(node):
+        if problem.isGoalState(coordinate):
             solution=path
             break
-        if node not in successorsDict: #prevent re-expanding
-            successors= problem.getSuccessors(node) #successor, action, stepCost
-            successorsDict[node]=successors
-        else:
-            successors= successorsDict[node]
+        if coordinate in seen:
+            continue
+        seen.append(coordinate)
+       
+        successors= problem.getSuccessors(coordinate) #successor, action, stepCost
         for successor in successors:
-            [location,action,cost]= successor
-            if location not in seen:
-                costDict[location]= costDict[node]+ cost
-                queue.update([location,path+[action]],costDict[location]+ heuristic(location,problem))
+            [newCoor,action,stepCost]= successor 
+            newCost= cost+ stepCost
+            queue.update([newCoor,path+[action],newCost],newCost+ heuristic(newCoor,problem))
     return solution
 
 
